@@ -1,0 +1,6 @@
+grumphp:
+  tasks:
+    shell:
+      scripts:
+        - ["-c", "./vendor/bin/pint --test"]
+        - ["-c", "./vendor/bin/pint"]
