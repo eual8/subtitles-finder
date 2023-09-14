@@ -4,9 +4,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PlaylistResource\Pages;
 use App\Models\Playlist;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class PlaylistResource extends Resource
@@ -19,7 +21,8 @@ class PlaylistResource extends Resource
     {
         return $form
             ->schema([
-                //
+                TextInput::make('youtube_id')->required(),
+                TextInput::make('title')->nullable(),
             ]);
     }
 
@@ -27,7 +30,9 @@ class PlaylistResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('id')->numeric(),
+                TextColumn::make('youtube_id'),
+                TextColumn::make('title'),
             ])
             ->filters([
                 //
