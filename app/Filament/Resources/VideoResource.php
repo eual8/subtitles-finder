@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\VideoResource\Pages;
 use App\Models\Playlist;
 use App\Models\Video;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -12,6 +13,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
@@ -34,6 +36,7 @@ class VideoResource extends Resource
                 Select::make('playlist_id')
                     ->options(Playlist::all()->pluck('title', 'id'))
                     ->required(),
+                FileUpload::make('attachments')->image(),
             ]);
     }
 
@@ -46,6 +49,7 @@ class VideoResource extends Resource
                 TextColumn::make('title'),
                 ToggleColumn::make('is_enabled'),
                 TextColumn::make('playlist.title'),
+                ImageColumn::make('attachments'),
             ])
             ->filters([
                 //
