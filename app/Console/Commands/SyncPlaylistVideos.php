@@ -9,14 +9,14 @@ use Illuminate\Console\Command;
 use Log;
 use Storage;
 
-class SyncPlaylist extends Command
+class SyncPlaylistVideos extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:sync-playlist';
+    protected $signature = 'app:sync-playlist-videos';
 
     /**
      * The console command description.
