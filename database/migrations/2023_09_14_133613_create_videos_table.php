@@ -20,6 +20,7 @@ return new class extends Migration
             $table->boolean('is_enabled')->nullable();
             $table->foreignId('playlist_id')->constrained()->restrictOnDelete();
             $table->text('attachments')->nullable();
+            $table->integer('duration')->nullable();
             $table->timestamps();
         });
     }
