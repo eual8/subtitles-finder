@@ -38,8 +38,12 @@ class SyncPlaylist extends Command
 
         $videos = $youtubeService->getVideos($playlist->youtube_id);
 
-        // TODO: добавить счётчики сколько видео найдено и сколько потом добавлено
+        $progressBar = $this->output->createProgressBar(count($videos));
+        $progressBar->start();
+
+        $newVideos = [];
         foreach ($videos as $videoData) {
+            $progressBar->advance();
 
             if (Video::where('youtube_id', $videoData['id'])->exists()) {
                 continue;
@@ -48,7 +52,7 @@ class SyncPlaylist extends Command
             $imageName = $videoData['id'].'.jpg';
             Storage::disk('public')->put($imageName, $this->fileGetContentsCurl($youtubeService->getThumbUrl($videoData['id'])));
 
-            $video = Video::create([
+            Video::create([
                 'youtube_id' => $videoData['id'],
                 'title' => $videoData['title'],
                 'playlist_id' => $playlist->id,
@@ -57,7 +61,13 @@ class SyncPlaylist extends Command
                 'attachments' => $imageName,
                 //                'subtitles' => $youtubeService->getSubtitles($youtubeId),
             ]);
+
+            $newVideos[] = $videoData['id'];
         }
+
+        $progressBar->finish();
+
+        $this->info('Saved new videos - '.count($newVideos));
     }
 
     public function fileGetContentsCurl(string $url)
