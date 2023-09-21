@@ -13,6 +13,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -59,7 +60,7 @@ class VideoResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 ImageColumn::make('attachments'),
                 TextColumn::make('title')
-                    ->limit(70, '...')
+                    ->limit(50, '...')
                     ->sortable()
                     ->searchable(),
                 ToggleColumn::make('is_enabled'),
@@ -73,6 +74,10 @@ class VideoResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Action::make('youtube')
+                    ->icon('heroicon-o-play-circle')
+                    ->url(fn (Video $record): string => sprintf('https://www.youtube.com/watch?v=%s', $record->youtube_id))
+                    ->openUrlInNewTab(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
