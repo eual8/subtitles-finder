@@ -49,6 +49,14 @@ class VideoResource extends Resource
                 TextColumn::make('id')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('youtube_id')
+                    ->numeric()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('duration')
+                    ->numeric()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 ImageColumn::make('attachments'),
                 TextColumn::make('title')
                     ->limit(70, '...')
