@@ -50,7 +50,10 @@ class SyncPlaylistVideos extends Command
             }
 
             $imageName = $videoData['id'].'.jpg';
-            Storage::disk('public')->put($imageName, $this->fileGetContentsCurl($youtubeService->getThumbUrl($videoData['id'])));
+
+            if (! Storage::disk('public')->exists($imageName)) {
+                Storage::disk('public')->put($imageName, $this->fileGetContentsCurl($youtubeService->getThumbUrl($videoData['id'])));
+            }
 
             Video::create([
                 'youtube_id' => $videoData['id'],
@@ -59,7 +62,6 @@ class SyncPlaylistVideos extends Command
                 'is_enabled' => true,
                 'duration' => $videoData['duration'],
                 'attachments' => $imageName,
-                //                'subtitles' => $youtubeService->getSubtitles($youtubeId),
             ]);
 
             $newVideos[] = $videoData['id'];

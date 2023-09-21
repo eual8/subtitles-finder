@@ -14,7 +14,8 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
-        "phpro/grumphp": "^2.0"
+        "phpro/grumphp": "^2.0",
+        "ext-curl": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.13",

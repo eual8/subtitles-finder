@@ -49,7 +49,7 @@ final class YoutubeService
             ];
         }
 
-        return $videos;
+        return array_reverse($videos);
     }
 
     public function getThumbUrl(string $youtubeId): string
