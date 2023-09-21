@@ -63,7 +63,8 @@ class VideoResource extends Resource
                     ->limit(50, '...')
                     ->sortable()
                     ->searchable(),
-                ToggleColumn::make('is_enabled'),
+                ToggleColumn::make('is_enabled')
+                    ->sortable(),
                 TextColumn::make('playlist.title'),
             ])
             ->filters([
