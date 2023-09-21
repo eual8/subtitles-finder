@@ -45,11 +45,10 @@ class VideoResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')->numeric(),
-                TextColumn::make('youtube_id'),
-                TextColumn::make('title'),
+                ImageColumn::make('attachments'),
+                TextColumn::make('title')->limit(70, '...'),
                 ToggleColumn::make('is_enabled'),
                 TextColumn::make('playlist.title'),
-                ImageColumn::make('attachments'),
             ])
             ->filters([
                 //
