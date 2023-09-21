@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Storage;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -55,5 +56,40 @@ final class YoutubeService
     public function getThumbUrl(string $youtubeId): string
     {
         return 'https://i3.ytimg.com/vi/'.$youtubeId.'/maxresdefault.jpg';
+    }
+
+    public function getSubtitles(string $youtubeId): ?string
+    {
+        $langCode = 'ru';
+        $filePath = Storage::disk('public')->path('');
+
+        $options = [
+            'yt-dlp',
+            '--write-sub',
+            '--sub-lang',
+            $langCode,
+            '--no-write-auto-subs',
+            '--skip-download',
+            '--no-overwrites',
+            '--output',
+            $filePath.'%(id)s.%(ext)s',
+            $youtubeId,
+        ];
+
+        $process = new Process($options);
+        $process->setTimeout(60 * 2); // 2 minutes
+        $process->run();
+
+        if (! $process->isSuccessful()) {
+            \Log::info('Yt-dlp - subtitles download', [$process->getErrorOutput()]);
+
+            return null;
+        }
+
+        if (str_contains($process->getOutput(), 'There are no subtitles')) {
+            return null;
+        }
+
+        return file_get_contents($filePath.$youtubeId.'.'.$langCode.'.vtt');
     }
 }
