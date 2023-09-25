@@ -51,7 +51,6 @@ class VideoResource extends Resource
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('youtube_id')
-                    ->numeric()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('duration')

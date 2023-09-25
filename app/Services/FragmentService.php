@@ -56,7 +56,7 @@ final class FragmentService
                 }
                 $currentItem = ['time_string' => $matches[1], 'text' => ''];
             } elseif ($currentItem !== null) {
-                $currentItem['text'] .= $line;
+                $currentItem['text'] .= ' '.$line;
             }
         }
 
@@ -73,7 +73,7 @@ final class FragmentService
             }
 
             // Конкатенируем текущий текст с новым текстом
-            $currentText .= $text;
+            $currentText .= ' '.$text;
 
             // Если текст завершается одним из знаков (. ! ?), добавляем его в результат и сбрасываем текущий текст
             if (preg_match('/[.!?]$/', $text)) {

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Fragment;
 use App\Models\Playlist;
 use App\Models\Video;
 use App\Services\FragmentService;
@@ -41,10 +42,10 @@ class SplitSubtitles extends Command
         $progressBar = $this->output->createProgressBar(count($videos));
         $progressBar->start();
 
+        Fragment::truncate();
         foreach ($videos as $video) {
             $progressBar->advance();
 
-            $fragmentService->deleteFragments($video);
             $fragmentService->createFragments($video);
         }
 
