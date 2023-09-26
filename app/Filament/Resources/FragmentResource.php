@@ -32,17 +32,22 @@ class FragmentResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
+            ->recordUrl(
+                fn (Fragment $record): string => FragmentResource::getUrl('read', ['record' => $record]),
+            )->columns([
                 Grid::make([
                     'lg' => 12,
                 ])->schema([
                     ImageColumn::make('video.attachments')->extraImgAttributes(fn (Fragment $record): array => [
                         'title' => "{$record->video->title}",
-                    ])->columnSpan([
-                        'lg' => 1,
-                    ]),
+                    ])->disabledClick(true)
+                        ->columnSpan([
+                            'lg' => 1,
+                        ]),
                     TextColumn::make('text')
-                        ->searchable()->columnSpan([
+                        ->searchable()
+                        ->disabledClick(true)
+                        ->columnSpan([
                             'lg' => 11,
                         ]),
                 ]),
@@ -78,6 +83,7 @@ class FragmentResource extends Resource
             'index' => Pages\ListFragments::route('/'),
             'create' => Pages\CreateFragment::route('/create'),
             'edit' => Pages\EditFragment::route('/{record}/edit'),
+            'read' => Pages\ReadFragments::route('/{record}/read'),
         ];
     }
 }
