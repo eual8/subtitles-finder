@@ -7,6 +7,7 @@ use App\Models\Fragment;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Grid;
 use Filament\Tables\Columns\TextColumn;
@@ -32,9 +33,7 @@ class FragmentResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(
-                fn (Fragment $record): string => FragmentResource::getUrl('read', ['record' => $record]),
-            )->columns([
+            ->recordUrl(null)->columns([
                 Grid::make([
                     'lg' => 12,
                 ])->schema([
@@ -61,7 +60,10 @@ class FragmentResource extends Resource
                     ->toggle(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Action::make('read')
+                    ->icon('heroicon-o-book-open')
+                    ->url(fn (Fragment $record): string => sprintf('/admin/fragments/%u/read', $record->id))
+                    ->openUrlInNewTab(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
