@@ -84,6 +84,7 @@ class FragmentResource extends Resource
         return [
             'index' => Pages\ListFragments::route('/'),
             'create' => Pages\CreateFragment::route('/create'),
+            'search' => Pages\SearchFragments::route('/search'),
             'edit' => Pages\EditFragment::route('/{record}/edit'),
             'read' => Pages\ReadFragments::route('/{record}/read'),
         ];
