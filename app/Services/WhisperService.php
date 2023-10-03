@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Console\Command;
-use Storage;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -16,7 +15,6 @@ final class WhisperService
 
     public function transcribe(string $youtubeId, string $langCode = 'ru', $output = null): string
     {
-        // TODO: Download audio from youtube
         $audioFile = $this->youtubeService->downloadAudio($youtubeId);
 
         $options = [
@@ -58,6 +56,9 @@ final class WhisperService
             throw new ProcessFailedException($process);
         }
 
-        return file_get_contents(Storage::disk('public')->path('').$youtubeId.'.vtt');
+        // Delete audio file
+        unlink($audioFile);
+
+        return file_get_contents($audioFile.'.vtt');
     }
 }
