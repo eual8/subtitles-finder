@@ -17,21 +17,46 @@ class SearchFragments extends Page
     #[Url]
     public string $searchQuery = '';
 
-    public array $fragments;
+    #[Url]
+    public int $page = 1;
+
+    protected $searchResult;
 
     public function mount(): void
+    {
+        $this->searchFragments();
+    }
+
+    public function search()
+    {
+        $this->page = 1;
+        $this->searchFragments();
+    }
+
+    protected function searchFragments()
     {
         $query = Query::match()
             ->field('text')
             ->query($this->searchQuery);
 
-        $searchResult = Fragment::searchQuery($query)
+        $this->searchResult = Fragment::searchQuery($query)
             ->load(['video'])
             ->highlight('text', [
                 'pre_tags' => ['<mark><b>'],
                 'post_tags' => ['</b></mark>'],
-            ])->execute();
+            ])->paginate(10, 'page', $this->page);
+    }
 
-        $this->fragments = $searchResult->hits()->toArray();
+    public function gotoPage($pageNumber)
+    {
+        $this->page = $pageNumber;
+        $this->searchFragments();
+    }
+
+    protected function getViewData(): array
+    {
+        return [
+            'fragments' => $this->searchResult,
+        ];
     }
 }
