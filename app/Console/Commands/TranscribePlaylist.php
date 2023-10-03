@@ -58,5 +58,7 @@ class TranscribePlaylist extends Command
         }
 
         $progressBar->finish();
+
+        return Command::SUCCESS;
     }
 }

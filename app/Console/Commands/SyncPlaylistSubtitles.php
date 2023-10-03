@@ -42,7 +42,6 @@ class SyncPlaylistSubtitles extends Command
         $progressBar = $this->output->createProgressBar(count($videos));
         $progressBar->start();
 
-        $counter = 0;
         foreach ($videos as $video) {
             $progressBar->advance();
 
@@ -50,12 +49,12 @@ class SyncPlaylistSubtitles extends Command
 
             if ($subtitles) {
                 $video->update(['subtitles' => $subtitles]);
-                $counter++;
+                $this->info('Saved subtitles for video - '.$video->title);
             }
         }
 
         $progressBar->finish();
 
-        $this->info('Saved new subtitles - '.$counter);
+        return Command::SUCCESS;
     }
 }

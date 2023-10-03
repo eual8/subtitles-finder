@@ -41,7 +41,6 @@ class SyncPlaylistVideos extends Command
         $progressBar = $this->output->createProgressBar(count($videos));
         $progressBar->start();
 
-        $newVideos = [];
         foreach ($videos as $videoData) {
             $progressBar->advance();
 
@@ -64,12 +63,12 @@ class SyncPlaylistVideos extends Command
                 'attachments' => $imageName,
             ]);
 
-            $newVideos[] = $videoData['id'];
+            $this->info('Saved new video - '.$videoData['title']);
         }
 
         $progressBar->finish();
 
-        $this->info('Saved new videos - '.count($newVideos));
+        return Command::SUCCESS;
     }
 
     public function fileGetContentsCurl(string $url)
