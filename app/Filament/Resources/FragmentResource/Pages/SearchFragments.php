@@ -4,8 +4,10 @@ namespace App\Filament\Resources\FragmentResource\Pages;
 
 use App\Filament\Resources\FragmentResource;
 use App\Models\Fragment;
+use App\Models\Video;
 use Elastic\ScoutDriverPlus\Support\Query;
 use Filament\Resources\Pages\Page;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Url;
 
 class SearchFragments extends Page
@@ -20,7 +22,12 @@ class SearchFragments extends Page
     #[Url]
     public int $page = 1;
 
+    #[Url]
+    public int $videoId = 0;
+
     protected $searchResult;
+
+    protected Collection $videos;
 
     public function mount(): void
     {
@@ -35,9 +42,24 @@ class SearchFragments extends Page
 
     protected function searchFragments()
     {
-        $query = Query::match()
-            ->field('text')
-            ->query($this->searchQuery);
+
+        if (! empty($this->videoId)) {
+            $filter = Query::term()
+                ->field('video_id')
+                ->value($this->videoId);
+
+            $must = Query::match()
+                ->field('text')
+                ->query($this->searchQuery);
+
+            $query = Query::bool()
+                ->must($must)
+                ->must($filter);
+        } else {
+            $query = Query::match()
+                ->field('text')
+                ->query($this->searchQuery);
+        }
 
         $this->searchResult = Fragment::searchQuery($query)
             ->load(['video'])
@@ -57,6 +79,9 @@ class SearchFragments extends Page
     {
         return [
             'fragments' => $this->searchResult,
+            'videos' => Video::orderBy('title')
+                ->get()
+                ->pluck('title', 'id'),
         ];
     }
 }
