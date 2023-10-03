@@ -1,20 +1,19 @@
 <?php
 
-namespace App\Filament\Resources\FragmentResource\Pages;
+namespace App\Filament\Pages;
 
-use App\Filament\Resources\FragmentResource;
 use App\Models\Fragment;
 use App\Models\Video;
 use Elastic\ScoutDriverPlus\Paginator;
 use Elastic\ScoutDriverPlus\Support\Query;
-use Filament\Resources\Pages\Page;
+use Filament\Pages\Page;
 use Livewire\Attributes\Url;
 
-class SearchFragments extends Page
+class Search extends Page
 {
-    protected static string $resource = FragmentResource::class;
+    protected static ?string $navigationIcon = 'heroicon-o-magnifying-glass';
 
-    protected static string $view = 'filament.resources.fragment-resource.pages.search-fragments';
+    protected static string $view = 'filament.pages.search';
 
     #[Url]
     public string $searchQuery = '';
