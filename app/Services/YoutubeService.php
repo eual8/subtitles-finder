@@ -58,9 +58,8 @@ final class YoutubeService
         return 'https://i3.ytimg.com/vi/'.$youtubeId.'/maxresdefault.jpg';
     }
 
-    public function getSubtitles(string $youtubeId): ?string
+    public function getSubtitles(string $youtubeId, string $langCode = 'ru'): ?string
     {
-        $langCode = 'ru';
         $filePath = Storage::disk('public')->path('');
 
         $options = [
@@ -91,5 +90,32 @@ final class YoutubeService
         }
 
         return file_get_contents($filePath.$youtubeId.'.'.$langCode.'.vtt');
+    }
+
+    public function downloadAudio(string $youtubeId, string $format = 'wav'): string
+    {
+        $filePath = Storage::disk('public')->path('').$youtubeId.'.'.$format;
+
+        $options = [
+            'yt-dlp',
+            '--extract-audio',
+            '--no-overwrites',
+            '--audio-format',
+            $format,
+            'https://www.youtube.com/watch?v='.$youtubeId,
+            '--postprocessor-args',
+            '-ar 16000',  // Важное требование к аудио 16 KHz для работы whisper
+            '--output',
+            $filePath,
+        ];
+
+        $process = new Process($options);
+        $process->run();
+
+        if (! $process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $filePath;
     }
 }
