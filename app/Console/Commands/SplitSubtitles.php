@@ -42,6 +42,10 @@ class SplitSubtitles extends Command
         $progressBar = $this->output->createProgressBar(count($videos));
         $progressBar->start();
 
+        // Remove all records from Elasticsearch index
+        $this->call('scout:flush', ['model' => 'App\Models\Fragment']);
+
+        // Remove all fragment records from DB
         Fragment::truncate();
         foreach ($videos as $video) {
             $progressBar->advance();
