@@ -5,9 +5,9 @@ namespace App\Filament\Resources\FragmentResource\Pages;
 use App\Filament\Resources\FragmentResource;
 use App\Models\Fragment;
 use App\Models\Video;
+use Elastic\ScoutDriverPlus\Paginator;
 use Elastic\ScoutDriverPlus\Support\Query;
 use Filament\Resources\Pages\Page;
-use Illuminate\Support\Collection;
 use Livewire\Attributes\Url;
 
 class SearchFragments extends Page
@@ -25,24 +25,13 @@ class SearchFragments extends Page
     #[Url]
     public int $videoId = 0;
 
-    protected $searchResult;
-
-    protected Collection $videos;
-
-    public function mount(): void
-    {
-        $this->searchFragments();
-    }
-
     public function search()
     {
         $this->page = 1;
-        $this->searchFragments();
     }
 
-    protected function searchFragments()
+    protected function searchFragments(): Paginator
     {
-
         if (! empty($this->videoId)) {
             $filter = Query::term()
                 ->field('video_id')
@@ -61,24 +50,23 @@ class SearchFragments extends Page
                 ->query($this->searchQuery);
         }
 
-        $this->searchResult = Fragment::searchQuery($query)
+        return Fragment::searchQuery($query)
             ->load(['video'])
             ->highlight('text', [
                 'pre_tags' => ['<mark><b>'],
                 'post_tags' => ['</b></mark>'],
-            ])->paginate(10, 'page', $this->page);
+            ])->paginate(20, 'page', $this->page);
     }
 
     public function gotoPage($pageNumber)
     {
         $this->page = $pageNumber;
-        $this->searchFragments();
     }
 
     protected function getViewData(): array
     {
         return [
-            'fragments' => $this->searchResult,
+            'fragments' => $this->searchFragments(),
             'videos' => Video::orderBy('title')
                 ->get()
                 ->pluck('title', 'id'),
