@@ -9,7 +9,7 @@
         </button>
 
         <select wire:model="videoId" wire:change="search" class="mt-2 w-1/2">
-            <option value=0>Select video</option>
+            <option value=0>All videos</option>
             @foreach($videos as $key => $video)
                 <option value="{{ $key }}">{{ $video }}</option>
             @endforeach
