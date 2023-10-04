@@ -8,12 +8,23 @@
             Search
         </button>
 
-        <select wire:model="videoId" wire:change="search" class="mt-2 w-1/2">
-            <option value=0>All videos</option>
-            @foreach($videos as $key => $video)
-                <option value="{{ $key }}">{{ $video }}</option>
-            @endforeach
-        </select>
+        <div class="w-full flex">
+            <select wire:model="playlistId" wire:change="filterPlaylist" class="mt-2 w-1/2">
+                <option value=0>All playlists</option>
+                @foreach($playlists as $key => $playlist)
+                    <option value="{{ $key }}">{{ $playlist }}</option>
+                @endforeach
+            </select>
+
+            <select wire:model="videoId" wire:change="search" class="mt-2 w-1/2">
+                <option value=0>All videos</option>
+                @foreach($videos as $key => $video)
+                    <option value="{{ $key }}">{{ $video }}</option>
+                @endforeach
+            </select>
+
+        </div>
+
 
     </form>
 
