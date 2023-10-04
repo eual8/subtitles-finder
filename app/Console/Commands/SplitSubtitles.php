@@ -37,9 +37,11 @@ class SplitSubtitles extends Command
 
         $videos = Video::where('playlist_id', $playlist->id)
             ->orderBy('id')
-            ->get();
+            ->lazy();
 
-        $progressBar = $this->output->createProgressBar(count($videos));
+        $count = Video::where('playlist_id', $playlist->id)->count();
+
+        $progressBar = $this->output->createProgressBar($count);
         $progressBar->start();
 
         // Remove all records from Elasticsearch index
