@@ -22,11 +22,6 @@ final class YoutubeService
         $process = new Process($options);
         $process->run();
 
-        // executes after the command finishes
-        if (! $process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
         $videos = [];
 
         foreach (explode(PHP_EOL, $process->getOutput()) as $item) {

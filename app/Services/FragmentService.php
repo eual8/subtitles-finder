@@ -60,6 +60,11 @@ final class FragmentService
             }
         }
 
+        // Добавляем последний элемент
+        if ($currentItem !== null) {
+            $result[] = $currentItem;
+        }
+
         // Объединяем если есть разрывы предложений
         $resultArray = [];
         $currentText = '';

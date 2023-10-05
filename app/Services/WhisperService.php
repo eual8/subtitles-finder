@@ -35,7 +35,7 @@ final class WhisperService
         ];
 
         $process = new Process($options);
-        $process->setTimeout(60 * 60 * 3); // 3 hours
+        $process->setTimeout(60 * 60 * 5); // 5 hours
         $process->setWorkingDirectory(config('whisper.whisper_project_path'));
 
         if (! empty($output)) {

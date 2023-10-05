@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Fragment;
-use App\Models\Playlist;
 use App\Models\Video;
 use App\Services\FragmentService;
 use Illuminate\Console\Command;
@@ -29,17 +28,10 @@ class SplitSubtitles extends Command
      */
     public function handle(FragmentService $fragmentService)
     {
-        $playlistTitle = $this->choice('Which playlist should synchronize?',
-            Playlist::all()->pluck('title', 'id')->toArray()
-        );
+        // Remove memory limit
+        ini_set('memory_limit', '-1');
 
-        $playlist = Playlist::where('title', $playlistTitle)->first();
-
-        $videos = Video::where('playlist_id', $playlist->id)
-            ->orderBy('id')
-            ->lazy();
-
-        $count = Video::where('playlist_id', $playlist->id)->count();
+        $count = Video::count();
 
         $progressBar = $this->output->createProgressBar($count);
         $progressBar->start();
@@ -49,10 +41,9 @@ class SplitSubtitles extends Command
 
         // Remove all fragment records from DB
         Fragment::truncate();
-        foreach ($videos as $video) {
-            $progressBar->advance();
-
+        foreach (Video::orderBy('id')->lazy() as $video) {
             $fragmentService->createFragments($video);
+            $progressBar->advance();
         }
 
         $progressBar->finish();
