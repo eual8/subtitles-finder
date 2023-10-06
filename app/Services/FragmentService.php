@@ -36,60 +36,55 @@ final class FragmentService
         Fragment::where('video_id', $video->id)->delete();
     }
 
+    public function reindexVideo(Video $video): void
+    {
+        $this->deleteFragments($video);
+        $this->createFragments($video);
+    }
+
     protected function splitSubtitles(string $text): array
     {
         $lines = explode("\n", $text);
-
         $result = [];
-        $currentItem = null;
+        $result[] = [
+            'time_string' => '00:00:00.000',
+            'text' => '',
+        ];
 
         foreach ($lines as $line) {
             $line = trim($line);
 
-            if (empty($line) || preg_match('/^WEBVTT$|^Kind:|Language:/i', $line)) {
+            if (empty($line) || preg_match('/^WEBVTT$|^Kind:|Language:|Редактор субтитров/iu', $line)) {
                 continue;
             }
 
+            $timeString = '';
+
             if (preg_match('/(\d{2}:\d{2}(\:\d{2})?\.\d{3}) --> (\d{2}:\d{2}(\:\d{2})?\.\d{3})/', $line, $matches)) {
-                if ($currentItem !== null) {
-                    $result[] = $currentItem;
-                }
-                $currentItem = ['time_string' => $matches[1], 'text' => ''];
-            } elseif ($currentItem !== null) {
-                $currentItem['text'] .= ' '.$line;
+                $timeString = $matches[1];
+            }
+
+            $prevItem = $result[count($result) - 1];
+
+            $isPrevTextFinished = preg_match('/[.!?]$/', $prevItem['text']);
+
+            if (! empty($timeString) && ! $isPrevTextFinished) {
+                continue;
+            } elseif (empty($timeString) && ! $isPrevTextFinished) {
+                $result[count($result) - 1]['text'] .= ' '.$line;
+                $result[count($result) - 1]['text'] = trim($result[count($result) - 1]['text']);
+            } elseif (empty($timeString) && $isPrevTextFinished) {
+                $result[] = ['time_string' => '', 'text' => $line];
+            } elseif (! empty($timeString) && $isPrevTextFinished) {
+                $result[] = ['time_string' => $timeString, 'text' => ''];
             }
         }
 
-        // Добавляем последний элемент
-        if ($currentItem !== null) {
-            $result[] = $currentItem;
+        // remove last item if text is empty
+        if (empty($result[count($result) - 1]['text'])) {
+            array_pop($result);
         }
 
-        // Объединяем если есть разрывы предложений
-        $resultArray = [];
-        $currentText = '';
-
-        foreach ($result as $item) {
-            $text = $item['text'];
-
-            // Если текущий текст не пустой и не завершается одним из знаков (. ! ?), добавляем пробел и конкатенируем с новым текстом
-            if (! empty($currentText) && ! preg_match('/[.!?]$/', $currentText)) {
-                $currentText .= ' ';
-            }
-
-            // Конкатенируем текущий текст с новым текстом
-            $currentText .= ' '.$text;
-
-            // Если текст завершается одним из знаков (. ! ?), добавляем его в результат и сбрасываем текущий текст
-            if (preg_match('/[.!?]$/', $text)) {
-                $resultArray[] = [
-                    'time_string' => $item['time_string'],
-                    'text' => $currentText,
-                ];
-                $currentText = '';
-            }
-        }
-
-        return $resultArray;
+        return $result;
     }
 }
