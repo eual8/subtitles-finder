@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -20,6 +21,8 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    protected static ?string $navigationGroup = 'Settings';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -31,6 +34,11 @@ class UserResource extends Resource
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                     ->dehydrated(fn ($state) => filled($state))
                     ->required(fn (string $context): bool => $context === 'create'),
+                Select::make('roles')
+                    ->multiple()
+                    ->relationship('roles', 'name')
+                    ->preload()
+                    ->searchable(),
             ]);
     }
 
