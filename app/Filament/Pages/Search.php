@@ -40,6 +40,16 @@ class Search extends Page
         $this->page = 1;
     }
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()->can('admin.search.index');
+    }
+
+    public function mount(): void
+    {
+        abort_unless(auth()->user()->can('admin.search.index'), 403);
+    }
+
     protected function searchFragments(): Paginator
     {
         // Фильтруем по Плейлисту
