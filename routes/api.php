@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\FragmentController;
 use App\Http\Controllers\Api\V1\PlaylistController;
+use App\Http\Controllers\Api\V1\VideoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(static function () {
 
-    Route::post('/token', [AuthController::class, 'create']);
+    Route::post('/tokens', [AuthController::class, 'create']);
 
     Route::middleware('auth:sanctum')->group(callback: static function () {
 
@@ -27,5 +29,8 @@ Route::prefix('v1')->group(static function () {
         });
 
         Route::resource('playlists', PlaylistController::class);
+        Route::resource('videos', VideoController::class);
+
+        Route::get('fragments/search', [FragmentController::class, 'search']);
     });
 });
