@@ -8,9 +8,6 @@ php artisan storage:link
 php artisan cache:clear
 php artisan config:clear
 
-npm i
-npm run build
-
 # check for a good exit
 if [ $? -ne 0 ]
 then
