@@ -42,7 +42,7 @@ class VideoResource extends Resource
                 Select::make('playlist_id')
                     ->options(Playlist::all()->pluck('title', 'id'))
                     ->required(),
-                FileUpload::make('attachments')->image(),
+                FileUpload::make('attachments')->disk('r2')->image(),
             ]);
     }
 
@@ -60,7 +60,7 @@ class VideoResource extends Resource
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                ImageColumn::make('attachments'),
+                ImageColumn::make('attachments')->disk('r2'),
                 TextColumn::make('title')
                     ->limit(50, '...')
                     ->sortable()
