@@ -39,7 +39,7 @@ class FragmentResource extends Resource
                 Grid::make([
                     'lg' => 12,
                 ])->schema([
-                    ImageColumn::make('video.attachments')->extraImgAttributes(fn (Fragment $record): array => [
+                    ImageColumn::make('video.attachments')->disk('r2')->extraImgAttributes(fn (Fragment $record): array => [
                         'title' => "{$record->video->title}",
                     ])->disabledClick(true)
                         ->columnSpan([
