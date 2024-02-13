@@ -50,8 +50,8 @@ class SyncPlaylistVideos extends Command
 
             $imageName = $videoData['id'].'.jpg';
 
-            if (! Storage::disk('public')->exists($imageName)) {
-                Storage::disk('public')->put($imageName, $this->fileGetContentsCurl($youtubeService->getThumbUrl($videoData['id'])));
+            if (! Storage::disk('r2')->exists($imageName)) {
+                Storage::disk('r2')->put($imageName, $this->fileGetContentsCurl($youtubeService->getThumbUrl($videoData['id'])));
             }
 
             Video::create([
