@@ -26,7 +26,7 @@ class TranscribeVideosFromQueue extends Command
      */
     public function handle(WhisperQueue $queue)
     {
-        $queue->transcribeQueueVideos($this);
+        $queue->transcribeQueueVideos($this, $this->output);
 
         return Command::SUCCESS;
     }

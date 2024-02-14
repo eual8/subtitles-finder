@@ -34,16 +34,16 @@ class WhisperQueue
         $this->closeConnection();
     }
 
-    public function transcribeQueueVideos(Command $console): void
+    public function transcribeQueueVideos(Command $console, $output = null): void
     {
         $this->initConnection();
 
-        $callback = function ($msg) use ($console) {
+        $callback = function ($msg) use ($console, $output) {
             $youtubeId = $msg->body;
 
             $console->info('Received - '.$youtubeId);
 
-            $subtitles = $this->whisperService->transcribe($youtubeId, 'ru');
+            $subtitles = $this->whisperService->transcribe($youtubeId, 'ru', $output);
 
             if ($subtitles) {
                 $video = Video::where('youtube_id', $youtubeId)->first();
