@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\WhisperQueue;
+use App\Services\VideoQueue;
 use Illuminate\Console\Command;
 
 class TranscribeVideosFromQueue extends Command
@@ -24,7 +24,7 @@ class TranscribeVideosFromQueue extends Command
     /**
      * Execute the console command.
      */
-    public function handle(WhisperQueue $queue)
+    public function handle(VideoQueue $queue)
     {
         $queue->transcribeQueueVideos($this, $this->output);
 
