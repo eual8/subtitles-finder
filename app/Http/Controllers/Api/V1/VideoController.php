@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\UpdateVideoRequest;
 use App\Http\Resources\V1\VideoCollection;
 use App\Http\Resources\V1\VideoResource;
 use App\Models\Video;
@@ -53,9 +54,11 @@ class VideoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Video $video)
+    public function update(UpdateVideoRequest $request, Video $video)
     {
-        //
+        $video->update($request->validated());
+
+        return new VideoResource($video);
     }
 
     /**
