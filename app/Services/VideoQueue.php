@@ -91,7 +91,7 @@ class VideoQueue
     protected function initConnection(): void
     {
         $this->connection = new AMQPStreamConnection(config('rabbitmq.host'), config('rabbitmq.port'),
-            config('rabbitmq.user'), config('rabbitmq.password'));
+            config('rabbitmq.user'), config('rabbitmq.password'), config('rabbitmq.vhost'));
 
         $this->channel = $this->connection->channel();
     }

@@ -9,5 +9,7 @@ return [
 
     'password' => env('RABBITMQ_PASSWORD', 'guest'),
 
+    'vhost' => env('RABBITMQ_VHOST', '/'),
+
     'whisper_queue' => env('RABBITMQ_WHISPER_QUEUE', 'whisper'),
 ];
