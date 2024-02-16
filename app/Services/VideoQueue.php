@@ -77,6 +77,7 @@ class VideoQueue
             $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
         };
 
+        $this->channel->basic_qos(null, 1, null); // Принимать только по одному сообщению за раз
         $this->channel->basic_consume($this->queueName, '', false, false, false, false, $callback);
 
         $console->info('Waiting for videos. To exit press CTRL+C');
