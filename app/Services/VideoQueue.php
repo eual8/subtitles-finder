@@ -69,8 +69,7 @@ class VideoQueue
                     'body' => json_encode($data),
                 ]);
 
-                $console->info(var_export($response, true));
-
+                $console->info('API answer code - '.$response->getStatusCode());
                 $console->info('Transcribed video - '.$message['youtubeId']);
             }
 
