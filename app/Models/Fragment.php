@@ -7,6 +7,7 @@ use Elastic\ScoutDriverPlus\Searchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Storage;
 
 /**
  * @property int $id
@@ -51,7 +52,6 @@ class Fragment extends Model
 
     public function getVideoImageAttribute(): string
     {
-        return \Storage::disk('r2')->url($this->video->attachments);
-        //        return env('CLOUDFLARE_R2_URL').'/'.$this->video->attachments;
+        return Storage::disk('r2')->url($this->video->attachments);
     }
 }
