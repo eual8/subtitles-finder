@@ -51,6 +51,6 @@ class Fragment extends Model
 
     public function getVideoImageAttribute(): string
     {
-        return 'http://subtitle-finder.test/storage/'.$this->video->attachments;
+        return env('CLOUDFLARE_R2_URL').$this->video->attachments;
     }
 }
