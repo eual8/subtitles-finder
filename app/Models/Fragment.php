@@ -51,6 +51,7 @@ class Fragment extends Model
 
     public function getVideoImageAttribute(): string
     {
-        return env('CLOUDFLARE_R2_URL').$this->video->attachments;
+        return \Storage::disk('r2')->url($this->video->attachments);
+        //        return env('CLOUDFLARE_R2_URL').'/'.$this->video->attachments;
     }
 }
