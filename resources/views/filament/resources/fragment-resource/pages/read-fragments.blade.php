@@ -1,7 +1,11 @@
 <x-filament-panels::page>
-    @include('filament.read_buttons')
+    <div class="grid flex-1 auto-cols-fr gap-y-1">
+        @include('filament.read_buttons')
 
-    @foreach($fragments as $fragment)<p title="{{ $fragment->time_string }}">{{ $fragment->text }}</p>@endforeach
+        @foreach($fragments as $fragment)
+            <span title="{{ $fragment->time_string }}">{{ $fragment->text }}</span>
+        @endforeach
 
-    @include('filament.read_buttons')
+        @include('filament.read_buttons')
+    </div>
 </x-filament-panels::page>
