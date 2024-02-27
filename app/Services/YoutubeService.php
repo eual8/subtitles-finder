@@ -20,6 +20,7 @@ final class YoutubeService
         ];
 
         $process = new Process($options);
+        $process->setTimeout(60 * 60 * 1); // 1 hour, для видео таких КФ это может быть долго
         $process->run();
 
         $videos = [];
