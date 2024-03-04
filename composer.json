@@ -63,6 +63,7 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "npm i && npm run build",
             "@php artisan package:discover --ansi",
             "@php artisan filament:upgrade"
         ],
