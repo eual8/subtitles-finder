@@ -106,6 +106,7 @@ final class YoutubeService
         ];
 
         $process = new Process($options);
+        $process->setTimeout(60 * 60 * 1); // 1 hour
         $process->run();
 
         if (! $process->isSuccessful()) {
