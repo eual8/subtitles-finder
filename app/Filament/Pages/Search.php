@@ -30,6 +30,9 @@ class Search extends Page
     #[Url]
     public int $playlistId = 0;
 
+    #[Url]
+    public bool $matchPhrase = false;
+
     public function search(): void
     {
         $this->page = 1;
@@ -58,7 +61,7 @@ class Search extends Page
 
     protected function searchFragments(): Paginator
     {
-        return $this->searchService->search($this->searchQuery, $this->playlistId, $this->videoId, $this->page);
+        return $this->searchService->search($this->searchQuery, $this->playlistId, $this->videoId, $this->page, 20, $this->matchPhrase);
     }
 
     public function gotoPage($pageNumber)

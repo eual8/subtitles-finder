@@ -8,8 +8,15 @@ use Elastic\ScoutDriverPlus\Support\Query;
 
 final class FragmentSearchService
 {
-    public function search(string $query, ?int $playlistId, ?int $videoId, int $page = 1, int $perPage = 20): Paginator
+    public function search(string $query, ?int $playlistId, ?int $videoId, int $page, int $perPage, bool $matchPharase): Paginator
     {
+
+        if ($matchPharase === true) {
+            $searchFunctionName = 'matchPhrase';
+        } else {
+            $searchFunctionName = 'match';
+        }
+
         // Фильтруем по Плейлисту
         if (! empty($playlistId)) {
 
@@ -17,7 +24,7 @@ final class FragmentSearchService
                 ->field('playlist_id')
                 ->value($playlistId);
 
-            $must = Query::match()
+            $must = Query::{$searchFunctionName}()
                 ->field('text')
                 ->query($query);
 
@@ -33,7 +40,7 @@ final class FragmentSearchService
             }
         } else {
             // Фильтров нет
-            $searchQuery = Query::match()
+            $searchQuery = Query::{$searchFunctionName}()
                 ->field('text')
                 ->query($query);
         }
