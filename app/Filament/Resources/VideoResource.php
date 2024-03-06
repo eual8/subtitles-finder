@@ -3,9 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\VideoResource\Pages;
+use App\Jobs\ReindexVideo;
 use App\Models\Playlist;
 use App\Models\Video;
-use App\Services\FragmentService;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -82,8 +82,8 @@ class VideoResource extends Resource
                     ->requiresConfirmation()
                     ->modalDescription('Are you sure to reindex this video subtitles?')
                     ->modalHeading('Reindex Video')
-                    ->action(function (Video $record, FragmentService $service): void {
-                        $service->reindexVideo($record);
+                    ->action(function (Video $record): void {
+                        ReindexVideo::dispatch($record);
                     }),
                 Tables\Actions\EditAction::make(),
                 Action::make('youtube')
