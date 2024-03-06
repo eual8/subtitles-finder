@@ -19,7 +19,7 @@ class ReindexVideo implements ShouldBeUnique, ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        private Video $video,
+        private readonly Video $video,
     ) {
         //
     }
