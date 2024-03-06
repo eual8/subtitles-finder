@@ -1,2 +1,2 @@
-web: vendor/bin/heroku-php-nginx -C nginx_app.conf public/
+web: vendor/bin/heroku-php-nginx -F fpm_custom.conf -C nginx_app.conf public/
 release: ./release-tasks.sh
