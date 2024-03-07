@@ -3,8 +3,8 @@
 namespace App\Filament\Pages;
 
 use App\Models\Playlist;
-use App\Models\Video;
 use App\Services\FragmentSearchService;
+use App\Services\VideoService;
 use Elastic\ScoutDriverPlus\Paginator;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
@@ -17,6 +17,8 @@ class Search extends Page
     protected static string $view = 'filament.pages.search';
 
     protected FragmentSearchService $searchService;
+
+    protected VideoService $videoService;
 
     #[Url]
     public string $searchQuery = '';
@@ -49,9 +51,10 @@ class Search extends Page
         return auth()->user()->can('admin.search.index');
     }
 
-    public function boot(FragmentSearchService $searchService): void
+    public function boot(FragmentSearchService $searchService, VideoService $videoService): void
     {
         $this->searchService = $searchService;
+        $this->videoService = $videoService;
     }
 
     public function mount(): void
@@ -77,10 +80,7 @@ class Search extends Page
 
     protected function getVideos(): Collection
     {
-        return Video::where('playlist_id', $this->playlistId)
-            ->orderBy('title')
-            ->get()
-            ->pluck('title', 'id');
+        return $this->videoService->getVideosForSelect($this->playlistId);
     }
 
     protected function getViewData(): array
