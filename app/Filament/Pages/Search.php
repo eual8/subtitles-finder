@@ -87,7 +87,7 @@ class Search extends Page
     {
         return [
             'fragments' => $this->searchFragments(),
-            'videos' => $this->getVideos(),
+            'videos' => $this->playlistId ? $this->getVideos() : [],
             'playlists' => Playlist::orderBy('title')->get()->pluck('title', 'id'),
         ];
     }
