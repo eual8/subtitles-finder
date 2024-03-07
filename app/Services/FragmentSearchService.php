@@ -10,6 +10,7 @@ final class FragmentSearchService
 {
     public function search(string $query, ?int $playlistId, ?int $videoId, int $page, int $perPage = 20, bool $matchPharase = false): Paginator
     {
+
         if ($matchPharase === true) {
             $searchFunctionName = 'matchPhrase';
         } else {
