@@ -33,6 +33,7 @@ final class FragmentService
 
     public function deleteFragments(Video $video): void
     {
+        Fragment::where('video_id', $video->id)->unsearchable(); // Delete docs from ES index
         Fragment::where('video_id', $video->id)->delete();
     }
 
