@@ -22,7 +22,7 @@ final class WhisperService
             '-bs',  // <== Нужно для того чтобы убрать галлюцинации модели когда идут сплошные дубли текста
             '5',    // https://github.com/ggerganov/whisper.cpp/issues/896#issuecomment-1569586018
             '-et',
-            '2.8',
+            '2.5',
             '-mc',
             '64',   // <==
             '-l',
