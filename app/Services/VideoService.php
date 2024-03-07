@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 final class VideoService
 {
-    public function getвщVideosForSelect(int $playlistId): Collection
+    public function getVideosForSelect(int $playlistId): Collection
     {
         return Video::where('playlist_id', $playlistId)
             ->orderBy('id', 'desc')
