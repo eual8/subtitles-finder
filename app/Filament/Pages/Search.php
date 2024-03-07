@@ -25,10 +25,10 @@ class Search extends Page
     public int $page = 1;
 
     #[Url]
-    public int $videoId = 0;
+    public ?int $videoId = null;
 
     #[Url]
-    public int $playlistId = 0;
+    public ?int $playlistId = null;
 
     #[Url]
     public bool $matchPhrase = false;
@@ -40,7 +40,7 @@ class Search extends Page
 
     public function filterPlaylist(): void
     {
-        $this->videoId = 0;
+        $this->videoId = null;
         $this->page = 1;
     }
 
@@ -61,7 +61,13 @@ class Search extends Page
 
     protected function searchFragments(): Paginator
     {
-        return $this->searchService->search($this->searchQuery, $this->playlistId, $this->videoId, $this->page, 20, $this->matchPhrase);
+        return $this->searchService->search(
+            query: $this->searchQuery,
+            playlistId: $this->playlistId,
+            videoId: $this->videoId,
+            page: $this->page,
+            matchPharase: $this->matchPhrase
+        );
     }
 
     public function gotoPage($pageNumber)
