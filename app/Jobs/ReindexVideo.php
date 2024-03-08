@@ -5,12 +5,13 @@ namespace App\Jobs;
 use App\Models\Video;
 use App\Services\FragmentService;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class ReindexVideo implements ShouldQueue
+class ReindexVideo implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -18,9 +19,14 @@ class ReindexVideo implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        private readonly Video $video,
+        protected Video $video,
     ) {
         //
+    }
+
+    public function uniqueId(): string
+    {
+        return 'reindex-video-id-'.$this->video->id;
     }
 
     /**
