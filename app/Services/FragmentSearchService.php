@@ -12,7 +12,7 @@ final class FragmentSearchService
     {
 
         if ($matchPharase === true) {
-            $searchFunctionName = 'matchPhrase';
+            $searchFunctionName = 'matchPhrasePrefix';
         } else {
             $searchFunctionName = 'match';
         }
@@ -42,6 +42,11 @@ final class FragmentSearchService
                     ->field('video_id')
                     ->value($videoId));
             }
+        }
+
+        // TODO: refactor to OOP
+        if ($matchPharase === true) {
+            $searchQuery->maxExpansions(50)->slop(5);
         }
 
         return Fragment::searchQuery($searchQuery)
