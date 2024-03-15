@@ -10,43 +10,30 @@ final class FragmentSearchService
 {
     public function search(string $query, ?int $playlistId, ?int $videoId, int $page, int $perPage = 20, bool $matchPharase = false): Paginator
     {
-
         if ($matchPharase === true) {
-            $searchFunctionName = 'matchPhrasePrefix';
+            $mustSearchBlock = Query::matchPhrasePrefix()
+                ->maxExpansions(50)
+                ->slop(5);
         } else {
-            $searchFunctionName = 'match';
+            $mustSearchBlock = Query::match();
         }
 
-        if ($playlistId === null) {
-            // Фильтров нет
-            $searchQuery = Query::{$searchFunctionName}()
-                ->field('text')
-                ->query($query);
-        } else {
-            // Фильтруем по Плейлисту
-            $playlistFilter = Query::term()
+        $mustSearchBlock->field('text')
+            ->query($query);
+
+        $searchQuery = Query::bool()
+            ->must($mustSearchBlock);
+
+        if ($playlistId !== null) {
+            $searchQuery->must(Query::term()
                 ->field('playlist_id')
-                ->value($playlistId);
-
-            $must = Query::{$searchFunctionName}()
-                ->field('text')
-                ->query($query);
-
-            $searchQuery = Query::bool()
-                ->must($must)
-                ->must($playlistFilter);
-
-            // Фильтруем по Плейлисту и по Видео
-            if ($videoId !== null) {
-                $searchQuery->must(Query::term()
-                    ->field('video_id')
-                    ->value($videoId));
-            }
+                ->value($playlistId));
         }
 
-        // TODO: refactor to OOP
-        if ($matchPharase === true) {
-            $searchQuery->maxExpansions(50)->slop(5);
+        if ($videoId !== null) {
+            $searchQuery->must(Query::term()
+                ->field('video_id')
+                ->value($videoId));
         }
 
         return Fragment::searchQuery($searchQuery)
