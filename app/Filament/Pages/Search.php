@@ -91,4 +91,21 @@ class Search extends Page
             'playlists' => Playlist::orderBy('title')->get()->pluck('title', 'id'),
         ];
     }
+
+    public function nextPage()
+    {
+        $this->page += 1;
+        $this->searchFragments();
+    }
+
+    public function previousPage()
+    {
+        $this->page -= 1;
+
+        if ($this->page < 1) {
+            $this->page = 1;
+        }
+
+        $this->searchFragments();
+    }
 }
