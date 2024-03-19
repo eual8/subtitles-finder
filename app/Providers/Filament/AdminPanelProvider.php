@@ -9,6 +9,7 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Widgets;
@@ -27,6 +28,7 @@ class AdminPanelProvider extends PanelProvider
     {
         FilamentAsset::register([
             Css::make('custom-app-css', Vite::asset('resources/css/app.css')),
+            Js::make('custom-app-js', Vite::asset('resources/js/app.js')),
         ]);
     }
 

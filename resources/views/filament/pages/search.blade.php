@@ -9,14 +9,14 @@
         </button>
 
         <div class="w-full flex gap-1">
-            <select wire:model="playlistId" wire:change="filterPlaylist" class="mt-2 w-1/2">
+            <select wire:model="playlistId" wire:change="filterPlaylist" class="mt-2 w-1/2 playlist-select">
                 <option value="">All playlists</option>
                 @foreach($playlists as $key => $playlist)
                     <option value="{{ $key }}">{{ $playlist }}</option>
                 @endforeach
             </select>
 
-            <select wire:model="videoId" wire:change="search" class="mt-2 w-1/2">
+            <select wire:model="videoId" wire:change="search" class="mt-2 w-1/2 video-select">
                 <option value="">All videos</option>
                 @foreach($videos as $key => $video)
                     <option value="{{ $key }}">{{ $video }}</option>
@@ -31,6 +31,20 @@
         </label>
 
     </form>
+
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                $('.video-select').select2();
+
+                $('.playlist-select').on('change', function () {
+                    $('.video-select').select2();
+                });
+            });
+        </script>
+    @endpush
+
+
 
     @foreach($fragments->hits() as $hit)
 
