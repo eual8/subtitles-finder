@@ -42,6 +42,8 @@ class Search extends Page
 
     public function filterPlaylist(): void
     {
+        $this->dispatch('playlist-updated');
+
         $this->videoId = null;
         $this->page = 1;
     }

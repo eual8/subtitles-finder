@@ -30,19 +30,27 @@
             <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Match phrase</span>
         </label>
 
-    </form>
-
-    @push('scripts')
+        @script
         <script>
-            $(document).ready(function() {
-                $('.video-select').select2();
+            $wire.on('playlist-updated', () => {
+                console.log(123)
 
-                $('.playlist-select').on('change', function () {
-                    $('.video-select').select2();
-                });
+                console.log($('.video-select').select2())
             });
         </script>
-    @endpush
+        @endscript
+
+        @push('scripts')
+            <script>
+                $(document).ready(function() {
+                    $('.video-select').select2();
+                });
+            </script>
+        @endpush
+
+    </form>
+
+
 
 
 
