@@ -3,15 +3,23 @@
 namespace App\Filament\Pages;
 
 use App\Models\Playlist;
+use App\Models\Video;
 use App\Services\FragmentSearchService;
 use App\Services\VideoService;
 use Elastic\ScoutDriverPlus\Paginator;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Url;
 
 class Search extends Page
 {
+    use InteractsWithForms;
+
     protected static ?string $navigationIcon = 'heroicon-o-magnifying-glass';
 
     protected static string $view = 'filament.pages.search';
@@ -35,8 +43,77 @@ class Search extends Page
     #[Url]
     public bool $matchPhrase = false;
 
+    public ?array $data = [];
+
+    // Добавляем метод для формы
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                TextInput::make('searchQuery')
+                    ->label('Поисковый запрос')
+                    ->required(),
+
+                Select::make('playlistId')
+                    ->label('Плейлист')
+                    ->options(function () {
+                        return Playlist::orderBy('title')->pluck('title', 'id');
+                    })
+                    ->placeholder('Все плейлисты')
+                    ->live()
+                    ->afterStateUpdated(fn () => $this->filterPlaylist())
+                    ->searchable()
+                    ->nullable(),
+
+                Select::make('videoId')
+                    ->label('Видео')
+                    ->options(function () {
+                        return $this->playlistId
+                            ? $this->getVideos()
+                            : Video::orderBy('title')->pluck('title', 'id');
+                    })
+                    ->placeholder('Все видео')
+                    ->live()
+                    ->afterStateUpdated(fn () => $this->search())
+                    ->searchable()
+                    ->nullable()
+                    ->visible(fn () => $this->playlistId !== null),
+
+                Checkbox::make('matchPhrase')
+                    ->label('Точное соответствие фразе')
+                    ->live()
+                    ->afterStateUpdated(fn () => $this->search()),
+            ])
+            ->statePath('data');
+    }
+
+    public function mount(): void
+    {
+        abort_unless(auth()->user()->can('admin.search.index'), 403);
+
+        // Инициализация данных формы
+        $this->form->fill([
+            'searchQuery' => $this->searchQuery,
+            'playlistId' => $this->playlistId,
+            'videoId' => $this->videoId,
+            'matchPhrase' => $this->matchPhrase,
+        ]);
+    }
+
+    // Обновление свойств из данных формы
+    protected function updateFromForm(): void
+    {
+        $data = $this->form->getState();
+
+        $this->searchQuery = $data['searchQuery'] ?? '';
+        $this->playlistId = $data['playlistId'] ?? null;
+        $this->videoId = $data['videoId'] ?? null;
+        $this->matchPhrase = $data['matchPhrase'] ?? false;
+    }
+
     public function search(): void
     {
+        $this->updateFromForm();
         $this->page = 1;
     }
 
@@ -57,11 +134,6 @@ class Search extends Page
         $this->videoService = $videoService;
     }
 
-    public function mount(): void
-    {
-        abort_unless(auth()->user()->can('admin.search.index'), 403);
-    }
-
     protected function searchFragments(): Paginator
     {
         return $this->searchService->search(
@@ -80,6 +152,10 @@ class Search extends Page
 
     protected function getVideos(): Collection
     {
+        if ($this->playlistId === null) {
+            return collect();
+        }
+
         return $this->videoService->getVideosForSelect($this->playlistId);
     }
 
@@ -87,7 +163,7 @@ class Search extends Page
     {
         return [
             'fragments' => $this->searchFragments(),
-            'videos' => $this->playlistId ? $this->getVideos() : [],
+            'videos' => $this->playlistId !== null ? $this->getVideos() : collect(),
             'playlists' => Playlist::orderBy('title')->get()->pluck('title', 'id'),
         ];
     }
