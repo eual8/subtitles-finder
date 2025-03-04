@@ -1,10 +1,12 @@
 <x-filament-panels::page>
 
-    {{ $this->form }}
-    
-    <x-filament::button wire:click="search" class="mt-4">
-        Поиск
-    </x-filament::button>
+    <form wire:submit.prevent="search">
+        {{ $this->form }}
+
+        <x-filament::button type="submit" class="mt-4">
+            Поиск
+        </x-filament::button>
+    </form>
 
     @foreach($fragments->hits() as $hit)
         <a href="/admin/fragments/{{ $hit->model()?->id }}/read" target="_blank">
