@@ -61,7 +61,10 @@ class Search extends Page
                     })
                     ->placeholder('Все плейлисты')
                     ->live()
-                    ->afterStateUpdated(fn () => $this->filterPlaylist())
+                    ->afterStateUpdated(function ($state) {
+                        $this->playlistId = $state;
+                        $this->filterPlaylist();
+                    })
                     ->searchable()
                     ->nullable(),
 
@@ -74,7 +77,10 @@ class Search extends Page
                     })
                     ->placeholder('Все видео')
                     ->live()
-                    ->afterStateUpdated(fn () => $this->search())
+                    ->afterStateUpdated(function ($state) {
+                        $this->videoId = $state;
+                        $this->search();
+                    })
                     ->searchable()
                     ->nullable()
                     ->visible(fn () => $this->playlistId !== null),
