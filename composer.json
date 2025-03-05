@@ -27,9 +27,9 @@
         "babenkoivan/elastic-scout-driver": "^3.1",
         "babenkoivan/elastic-scout-driver-plus": "^4.6",
         "barryvdh/laravel-ide-helper": "^3.5",
-        "filament/filament": "3.2.42",
+        "filament/filament": "^3.3",
         "guzzlehttp/guzzle": "^7.2",
-        "laravel/framework": "^11.0",
+        "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.4",
         "laravel/tinker": "^2.8",
@@ -45,7 +45,7 @@
         "laravel/sail": "^1.18",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.0",
-        "phpunit/phpunit": "^10.1",
+        "phpunit/phpunit": "^11",
         "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {

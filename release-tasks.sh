@@ -7,3 +7,6 @@ php artisan migrate --force
 php artisan storage:link
 php artisan cache:clear
 php artisan config:clear
+
+php artisan optimize
+php artisan filament:optimize
