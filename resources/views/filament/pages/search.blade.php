@@ -10,8 +10,7 @@
 
     @if($fragments->hits()->count() > 0)
         <div class="mt-4">
-            <x-filament::button wire:click="exportResults" color="success">
-                Экспорт результатов
+            <x-filament::button wire:click="exportResults" color="success" icon="heroicon-o-arrow-down-tray" tooltip="Export">
             </x-filament::button>
         </div>
     @endif

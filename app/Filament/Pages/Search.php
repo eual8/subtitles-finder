@@ -215,6 +215,9 @@ class Search extends Page
         return response()->streamDownload(function () use ($results) {
             echo "Результаты поиска: \"{$this->searchQuery}\"\n\n";
 
+            // Количество фрагментов до и после найденного для контекста
+            $contextFragmentsCount = 5;
+
             foreach ($results as $index => $hit) {
                 $fragment = $hit->model();
                 if (! $fragment) {
@@ -230,7 +233,7 @@ class Search extends Page
                 $previousFragments = \App\Models\Fragment::where('video_id', $fragment->video_id)
                     ->where('id', '<', $fragment->id)
                     ->orderBy('id', 'desc')
-                    ->limit(10)
+                    ->limit($contextFragmentsCount)
                     ->get()
                     ->reverse();
 
@@ -248,7 +251,7 @@ class Search extends Page
                 $nextFragments = \App\Models\Fragment::where('video_id', $fragment->video_id)
                     ->where('id', '>', $fragment->id)
                     ->orderBy('id', 'asc')
-                    ->limit(10)
+                    ->limit($contextFragmentsCount)
                     ->get();
 
                 // Выводим следующие фрагменты

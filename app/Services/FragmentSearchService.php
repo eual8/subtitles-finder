@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Fragment;
-use Elastic\ScoutDriverPlus\Decorators\SearchResult;
 use Elastic\ScoutDriverPlus\Paginator;
 use Elastic\ScoutDriverPlus\Support\Query;
 
@@ -48,7 +47,7 @@ final class FragmentSearchService
     /**
      * Поиск фрагментов для экспорта (без пагинации)
      */
-    public function searchForExport(string $query, ?int $playlistId = null, ?int $videoId = null, bool $matchPharase = false): SearchResult
+    public function searchForExport(string $query, ?int $playlistId = null, ?int $videoId = null, bool $matchPharase = false, int $limit = 1000): Paginator
     {
         if ($matchPharase === true) {
             $mustSearchBlock = Query::matchPhrasePrefix()
@@ -79,6 +78,6 @@ final class FragmentSearchService
         // Используем такой же запрос как в search, но с большим лимитом и без пагинации
         return Fragment::searchQuery($searchQuery)
             ->load(['video'])
-            ->execute(1000);
+            ->paginate($limit, 'page');
     }
 }
