@@ -213,10 +213,11 @@ class Search extends Page
         $filename .= '.txt';
 
         return response()->streamDownload(function () use ($results) {
-            echo "Результаты поиска: \"{$this->searchQuery}\"\n\n";
-
             // Количество фрагментов до и после найденного для контекста
             $contextFragmentsCount = 5;
+
+            // Создаем набор для отслеживания уникальных ID фрагментов
+            $processedFragmentIds = [];
 
             foreach ($results as $index => $hit) {
                 $fragment = $hit->model();
@@ -226,10 +227,9 @@ class Search extends Page
 
                 $videoTitle = $fragment->video->title ?? 'Без названия';
 
-                echo '------- Фрагмент #'.($index + 1)." -------\n";
-                echo "Видео: {$videoTitle}\n";
+                echo '------- Фрагмент #'.($index + 1)." из Видео: {$videoTitle} -------\n";
 
-                // Получаем предыдущие 10 фрагментов
+                // Получаем предыдущие фрагменты
                 $previousFragments = \App\Models\Fragment::where('video_id', $fragment->video_id)
                     ->where('id', '<', $fragment->id)
                     ->orderBy('id', 'desc')
@@ -240,14 +240,20 @@ class Search extends Page
                 // Выводим предыдущие фрагменты
                 if ($previousFragments->count() > 0) {
                     foreach ($previousFragments as $prevFragment) {
-                        echo "{$prevFragment->text}\n";
+                        if (! in_array($prevFragment->id, $processedFragmentIds)) {
+                            echo "{$prevFragment->text}\n";
+                            $processedFragmentIds[] = $prevFragment->id;
+                        }
                     }
                 }
 
                 // Выводим основной найденный фрагмент
-                echo "{$fragment->text}\n";
+                if (! in_array($fragment->id, $processedFragmentIds)) {
+                    echo "{$fragment->text}\n";
+                    $processedFragmentIds[] = $fragment->id;
+                }
 
-                // Получаем следующие 10 фрагментов
+                // Получаем следующие фрагменты
                 $nextFragments = \App\Models\Fragment::where('video_id', $fragment->video_id)
                     ->where('id', '>', $fragment->id)
                     ->orderBy('id', 'asc')
@@ -257,7 +263,10 @@ class Search extends Page
                 // Выводим следующие фрагменты
                 if ($nextFragments->count() > 0) {
                     foreach ($nextFragments as $nextFragment) {
-                        echo "{$nextFragment->text}\n";
+                        if (! in_array($nextFragment->id, $processedFragmentIds)) {
+                            echo "{$nextFragment->text}\n";
+                            $processedFragmentIds[] = $nextFragment->id;
+                        }
                     }
                 }
 
