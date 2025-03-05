@@ -15,6 +15,7 @@ use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Url;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class Search extends Page
 {
@@ -189,5 +190,47 @@ class Search extends Page
         }
 
         $this->searchFragments();
+    }
+
+    /**
+     * Экспортирует все найденные результаты в текстовый файл
+     */
+    public function exportResults(): StreamedResponse
+    {
+        $this->updateFromForm();
+
+        // Получаем все результаты для экспорта (без пагинации)
+        $results = $this->searchService->searchForExport(
+            query: $this->searchQuery,
+            playlistId: $this->playlistId,
+            videoId: $this->videoId,
+            matchPharase: $this->matchPhrase
+        );
+
+        // Санитизируем имя файла
+        $filename = str_replace([' ', '/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $this->searchQuery);
+        $filename = $filename ?: 'search_results';
+        $filename .= '.txt';
+
+        return response()->streamDownload(function () use ($results) {
+            echo "Результаты поиска: \"{$this->searchQuery}\"\n\n";
+
+            foreach ($results as $index => $hit) {
+                $fragment = $hit->model();
+                if (! $fragment) {
+                    continue;
+                }
+
+                $videoTitle = $fragment->video->title ?? 'Без названия';
+
+                echo '------- Фрагмент #'.($index + 1)." -------\n";
+                echo "Видео: {$videoTitle}\n";
+                echo $fragment->text."\n\n";
+            }
+        }, $filename, [
+            'Content-Type' => 'text/plain',
+            'Content-Disposition' => "attachment; filename={$filename}",
+            'charset' => 'UTF-8',
+        ]);
     }
 }

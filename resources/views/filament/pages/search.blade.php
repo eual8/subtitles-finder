@@ -8,6 +8,14 @@
         </x-filament::button>
     </form>
 
+    @if($fragments->hits()->count() > 0)
+        <div class="mt-4">
+            <x-filament::button wire:click="exportResults" color="success">
+                Экспорт результатов
+            </x-filament::button>
+        </div>
+    @endif
+
     @foreach($fragments->hits() as $hit)
         <a href="/admin/fragments/{{ $hit->model()?->id }}/read" target="_blank">
             <div class="flex items-center border-b border-gray-300 py-2">
