@@ -225,7 +225,40 @@ class Search extends Page
 
                 echo '------- Фрагмент #'.($index + 1)." -------\n";
                 echo "Видео: {$videoTitle}\n";
-                echo $fragment->text."\n\n";
+
+                // Получаем предыдущие 10 фрагментов
+                $previousFragments = \App\Models\Fragment::where('video_id', $fragment->video_id)
+                    ->where('id', '<', $fragment->id)
+                    ->orderBy('id', 'desc')
+                    ->limit(10)
+                    ->get()
+                    ->reverse();
+
+                // Выводим предыдущие фрагменты
+                if ($previousFragments->count() > 0) {
+                    foreach ($previousFragments as $prevFragment) {
+                        echo "{$prevFragment->text}\n";
+                    }
+                }
+
+                // Выводим основной найденный фрагмент
+                echo "{$fragment->text}\n";
+
+                // Получаем следующие 10 фрагментов
+                $nextFragments = \App\Models\Fragment::where('video_id', $fragment->video_id)
+                    ->where('id', '>', $fragment->id)
+                    ->orderBy('id', 'asc')
+                    ->limit(10)
+                    ->get();
+
+                // Выводим следующие фрагменты
+                if ($nextFragments->count() > 0) {
+                    foreach ($nextFragments as $nextFragment) {
+                        echo "{$nextFragment->text}\n";
+                    }
+                }
+
+                echo "\n\n";
             }
         }, $filename, [
             'Content-Type' => 'text/plain',
