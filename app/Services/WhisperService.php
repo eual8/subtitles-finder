@@ -10,8 +10,7 @@ final class WhisperService
 {
     public function __construct(
         protected YoutubeService $youtubeService,
-    ) {
-    }
+    ) {}
 
     public function transcribe(string $youtubeId, string $langCode = 'ru', $output = null): string
     {

@@ -53,7 +53,7 @@ class VideoQueue
 
             if ($subtitles) {
 
-                $client = new Client();
+                $client = new Client;
                 $url = env('MAIN_NODE_URL').'/api/v1/videos/'.$message['id'];
 
                 $data = [
