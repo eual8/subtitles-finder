@@ -18,3 +18,8 @@ php -d memory_limit=4096M artisan scout:import "App\Models\Fragment"
 php artisan elastic:migrate:refresh
 ```
 
+#### Создание индекса Typesense вручную:
+```
+php artisan typesense:create-index
+```
+Команда создаёт коллекцию `fragments` в Typesense, проверяя существование индекса. Добавьте флаг `--force`, чтобы предварительно удалить уже созданную коллекцию и пересоздать её с нуля.

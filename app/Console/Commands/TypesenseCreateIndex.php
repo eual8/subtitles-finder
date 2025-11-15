@@ -8,7 +8,7 @@ use Throwable;
 use Typesense\Client;
 use Typesense\Exceptions\ObjectNotFound;
 
-class TypesenseSyncFragmentsIndex extends Command
+class TypesenseCreateIndex extends Command
 {
     private const int VECTOR_DIMENSIONS = 768;
 
@@ -17,7 +17,7 @@ class TypesenseSyncFragmentsIndex extends Command
      *
      * @var string
      */
-    protected $signature = 'typesense:sync-fragments-index {--force : Drop and recreate the collection if it already exists}';
+    protected $signature = 'typesense:create-index {--force : Drop and recreate the collection if it already exists}';
 
     /**
      * The console command description.
