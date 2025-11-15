@@ -5,6 +5,9 @@ namespace App\Console\Commands;
 use App\Models\Fragment;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
+use RuntimeException;
 use Throwable;
 use Typesense\Client;
 use Typesense\Exceptions\ObjectNotFound;
@@ -12,6 +15,8 @@ use Typesense\Exceptions\ObjectNotFound;
 class TypesenseImportFragments extends Command
 {
     private const string COLLECTION_NAME = 'fragments';
+
+    private const int EMBEDDING_BATCH_LIMIT = 100;
 
     /**
      * The name and signature of the console command.
@@ -25,7 +30,7 @@ class TypesenseImportFragments extends Command
      *
      * @var string
      */
-    protected $description = 'Sync the fragments table into the Typesense fragments collection (skipping vector data).';
+    protected $description = 'Sync the fragments table into the Typesense fragments collection, generating text embeddings en route.';
 
     public function handle(): int
     {
@@ -64,7 +69,7 @@ class TypesenseImportFragments extends Command
             Fragment::query()
                 ->orderBy('id')
                 ->chunkById($chunkSize, function ($fragments) use ($client, $progressBar) {
-                    $documents = $fragments->map(fn (Fragment $fragment) => $this->fragmentToDocument($fragment))->all();
+                    $documents = $this->buildDocumentsWithEmbeddings($fragments);
 
                     $client->collections[self::COLLECTION_NAME]
                         ->documents
@@ -88,9 +93,20 @@ class TypesenseImportFragments extends Command
         return self::SUCCESS;
     }
 
-    private function fragmentToDocument(Fragment $fragment): array
+    private function buildDocumentsWithEmbeddings(Collection $fragments): array
     {
-        return [
+        $embeddings = $this->fetchEmbeddings($fragments);
+
+        return $fragments->map(function (Fragment $fragment) use ($embeddings) {
+            $vector = $embeddings[$fragment->id] ?? null;
+
+            return $this->fragmentToDocument($fragment, $vector);
+        })->all();
+    }
+
+    private function fragmentToDocument(Fragment $fragment, ?array $embedding = null): array
+    {
+        $document = [
             'id' => (int) $fragment->id,
             'video_id' => (int) $fragment->video_id,
             'text' => (string) $fragment->text,
@@ -99,6 +115,58 @@ class TypesenseImportFragments extends Command
             'created_at' => optional($fragment->created_at)?->getTimestamp(),
             'updated_at' => optional($fragment->updated_at)?->getTimestamp(),
         ];
+
+        if ($embedding !== null) {
+            $document['text_vector'] = $embedding;
+        }
+
+        return $document;
+    }
+
+    private function fetchEmbeddings(Collection $fragments): array
+    {
+        if ($fragments->isEmpty()) {
+            return [];
+        }
+
+        $url = env('SENTENCE_EMBEDDINGS_URL');
+        $textsById = $fragments
+            ->mapWithKeys(fn (Fragment $fragment) => [$fragment->id => $fragment->text])
+            ->all();
+
+        $vectors = [];
+
+        foreach (array_chunk($textsById, self::EMBEDDING_BATCH_LIMIT, true) as $batch) {
+            $response = Http::timeout(30)->post($url, [
+                'texts' => array_values($batch),
+                'normalize' => true,
+            ]);
+
+            if ($response->failed()) {
+                throw new RuntimeException(sprintf(
+                    'Sentence embeddings request failed with status %d.',
+                    $response->status()
+                ));
+            }
+
+            $body = $response->json();
+            $embeddings = $body['embeddings'] ?? null;
+
+            if (! is_array($embeddings) || count($embeddings) !== count($batch)) {
+                throw new RuntimeException('Invalid embeddings payload received from sentence embeddings service.');
+            }
+
+            $ids = array_keys($batch);
+            foreach ($embeddings as $index => $vector) {
+                if (! is_array($vector)) {
+                    throw new RuntimeException('Embedding vector is missing or malformed.');
+                }
+
+                $vectors[$ids[$index]] = array_map('floatval', $vector);
+            }
+        }
+
+        return $vectors;
     }
 
     private function makeClient(): ?Client
