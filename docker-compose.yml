@@ -14,5 +14,18 @@ services:
       TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-dev_typesense_key}
     command: ["--data-dir", "/data", "--api-key=${TYPESENSE_API_KEY:-dev_typesense_key}", "--enable-cors"]
 
+  sentence-embeddings:
+    build:
+      context: ./docker/labse
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8109:8080"
+    volumes:
+      - labse_cache:/root/.cache
+
 volumes:
   typesense-data:
+  labse_cache:
