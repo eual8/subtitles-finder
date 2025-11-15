@@ -23,3 +23,9 @@ php artisan elastic:migrate:refresh
 php artisan typesense:create-index
 ```
 Команда создаёт коллекцию `fragments` в Typesense, проверяя существование индекса. Добавьте флаг `--force`, чтобы предварительно удалить уже созданную коллекцию и пересоздать её с нуля.
+
+#### Импорт данных в Typesense из таблицы fragments:
+```
+php artisan typesense:import-fragments
+```
+Команда читает строки из БД и отправляет их в коллекцию `fragments`. При необходимости можно изменить размер пакета через опцию `--chunk=1000`.
