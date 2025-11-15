@@ -23,3 +23,4 @@ yarn-error.log
 /_ide_helper_models.php
 .DS_Store
 
+/typesense-data/db/000004.log
