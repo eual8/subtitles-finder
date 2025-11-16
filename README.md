@@ -26,6 +26,6 @@ php artisan typesense:create-index
 
 #### Импорт данных в Typesense из таблицы fragments:
 ```
-php artisan typesense:import-fragments
+php -d memory_limit=4096M artisan typesense:import-fragments
 ```
 Команда читает строки из БД и отправляет их в коллекцию `fragments`. При необходимости можно изменить размер пакета через опцию `--chunk=1000`.
