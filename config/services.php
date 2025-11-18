@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'sentence_embeddings' => [
+        'url' => env('SENTENCE_EMBEDDINGS_URL'),
+    ],
+
 ];

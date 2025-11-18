@@ -107,7 +107,8 @@ class TypesenseCreateIndex extends Command
         return [
             'name' => 'fragments',
             'fields' => [
-                ['name' => 'id', 'type' => 'int64'],
+                // NOTE: 'id' field is not defined here because Typesense treats it as a special
+                // primary key field that must always be a string. It's created automatically.
                 ['name' => 'video_id', 'type' => 'int32'],
                 ['name' => 'text', 'type' => 'string'],
                 [

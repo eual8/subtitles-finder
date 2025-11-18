@@ -16,7 +16,9 @@ class TypesenseImportFragments extends Command
 {
     private const string COLLECTION_NAME = 'fragments';
 
-    private const int EMBEDDING_BATCH_LIMIT = 100;
+    private const int EMBEDDING_BATCH_LIMIT = 50;
+
+    private const int TIMEOUT = 90;
 
     /**
      * The name and signature of the console command.
@@ -71,9 +73,35 @@ class TypesenseImportFragments extends Command
                 ->chunkById($chunkSize, function ($fragments) use ($client, $progressBar) {
                     $documents = $this->buildDocumentsWithEmbeddings($fragments);
 
-                    $client->collections[self::COLLECTION_NAME]
+                    $result = $client->collections[self::COLLECTION_NAME]
                         ->documents
                         ->import($documents, ['action' => 'upsert']);
+
+                    // Check for import errors
+                    $errors = [];
+                    foreach ($result as $index => $item) {
+                        if (isset($item['success']) && $item['success'] === false) {
+                            $errors[] = sprintf(
+                                'Document %s failed: %s',
+                                $documents[$index]['id'] ?? $index,
+                                $item['error'] ?? 'Unknown error'
+                            );
+                        }
+                    }
+
+                    if (! empty($errors)) {
+                        $errorMessage = sprintf(
+                            "Failed to import %d document(s):\n%s",
+                            count($errors),
+                            implode("\n", array_slice($errors, 0, 10))
+                        );
+
+                        if (count($errors) > 10) {
+                            $errorMessage .= sprintf("\n... and %d more errors", count($errors) - 10);
+                        }
+
+                        throw new RuntimeException($errorMessage);
+                    }
 
                     $progressBar->advance(count($documents));
                 });
@@ -107,7 +135,7 @@ class TypesenseImportFragments extends Command
     private function fragmentToDocument(Fragment $fragment, ?array $embedding = null): array
     {
         $document = [
-            'id' => (int) $fragment->id,
+            'id' => (string) $fragment->id,
             'video_id' => (int) $fragment->video_id,
             'text' => (string) $fragment->text,
             'time_string' => $fragment->time_string,
@@ -129,7 +157,7 @@ class TypesenseImportFragments extends Command
             return [];
         }
 
-        $url = env('SENTENCE_EMBEDDINGS_URL');
+        $url = config('services.sentence_embeddings.url');
         $textsById = $fragments
             ->mapWithKeys(fn (Fragment $fragment) => [$fragment->id => $fragment->text])
             ->all();
@@ -137,7 +165,7 @@ class TypesenseImportFragments extends Command
         $vectors = [];
 
         foreach (array_chunk($textsById, self::EMBEDDING_BATCH_LIMIT, true) as $batch) {
-            $response = Http::timeout(30)->post($url, [
+            $response = Http::timeout(self::TIMEOUT)->post($url, [
                 'texts' => array_values($batch),
                 'normalize' => true,
             ]);
