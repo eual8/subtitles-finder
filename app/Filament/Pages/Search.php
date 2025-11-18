@@ -23,6 +23,8 @@ class Search extends Page
 
     protected static ?string $navigationIcon = 'heroicon-o-magnifying-glass';
 
+    protected static ?int $navigationSort = 10;
+
     protected static string $view = 'filament.pages.search';
 
     protected FragmentSearchService $searchService;

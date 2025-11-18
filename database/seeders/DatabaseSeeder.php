@@ -15,13 +15,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@subtitles-finder.com', // Password: password
-        ]);
+        $user = User::firstOrCreate(
+            ['email' => 'admin@subtitles-finder.com'],
+            [
+                'name' => 'Admin',
+                'password' => bcrypt('password'),
+            ]
+        );
 
         $role = Role::findOrCreate('admin');
-        $user = User::where('email', 'admin@subtitles-finder.com')->first();
         $user->assignRole($role);
 
         $roles = [
@@ -63,6 +65,9 @@ class DatabaseSeeder extends Seeder
             'search manager' => [
                 'admin.search.index',
             ],
+            'vector search manager' => [
+                'admin.vector-search.index',
+            ],
         ];
 
         $basePermission = Permission::findOrCreate('admin.panel.access');
@@ -75,5 +80,10 @@ class DatabaseSeeder extends Seeder
             $permissions[] = $basePermission;
             $role->syncPermissions($permissions);
         }
+
+        // Grant admin role all permissions
+        $adminRole = Role::findOrCreate('admin');
+        $allPermissions = Permission::all();
+        $adminRole->syncPermissions($allPermissions);
     }
 }
