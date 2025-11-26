@@ -10,38 +10,59 @@ final class FragmentSearchService
 {
     public function search(string $query, ?int $playlistId, ?int $videoId, int $page, int $perPage = 20, bool $matchPhrase = false): Paginator
     {
+        $searchFields = [
+            'text^3',
+            'text.fallback^2',
+            'text.ngram^1',
+        ];
+
         if ($matchPhrase === true) {
-            $mustSearchBlock = Query::matchPhrasePrefix()
-                ->maxExpansions(50)
-                ->slop(5);
+            // bool_prefix работает с search_as_you_type и поддерживает «набор по буквам» для последнего токена
+            $mustSearchBlock = Query::multiMatch()
+                ->type('bool_prefix')
+                ->fields($searchFields);
         } else {
-            $mustSearchBlock = Query::match();
+            // обычный match по нескольким полям
+            $mustSearchBlock = Query::multiMatch()
+                ->type('best_fields')
+                ->fields($searchFields);
         }
 
-        $mustSearchBlock->field('text')
-            ->query($query);
+        $mustSearchBlock->query($query);
+        // Основной bool
+        $searchQuery = Query::bool()->must($mustSearchBlock);
 
-        $searchQuery = Query::bool()
-            ->must($mustSearchBlock);
-
+        // Фильтр по playlist_id
         if ($playlistId !== null) {
-            $searchQuery->must(Query::term()
-                ->field('playlist_id')
-                ->value($playlistId));
+            $searchQuery->must(
+                Query::term()
+                    ->field('playlist_id')
+                    ->value($playlistId)
+            );
         }
 
+        // Фильтр по video_id
         if ($videoId !== null) {
-            $searchQuery->must(Query::term()
-                ->field('video_id')
-                ->value($videoId));
+            $searchQuery->must(
+                Query::term()
+                    ->field('video_id')
+                    ->value($videoId)
+            );
         }
+
+        $highlightOptions = [
+            'pre_tags' => ['<mark><b>'],
+            'post_tags' => ['</b></mark>'],
+            // allow highlighting across multi_match fields
+            'require_field_match' => false,
+        ];
 
         return Fragment::searchQuery($searchQuery)
             ->load(['video'])
-            ->highlight('text', [
-                'pre_tags' => ['<mark><b>'],
-                'post_tags' => ['</b></mark>'],
-            ])->paginate($perPage, 'page', $page);
+            ->highlight('text', $highlightOptions)
+            ->highlight('text.fallback', $highlightOptions)
+            ->highlight('text.ngram', $highlightOptions)
+            ->paginate($perPage, 'page', $page);
     }
 
     /**
@@ -49,16 +70,26 @@ final class FragmentSearchService
      */
     public function searchForExport(string $query, ?int $playlistId = null, ?int $videoId = null, bool $matchPhrase = false, int $limit = 1000): Paginator
     {
+        $searchFields = [
+            'text^3',
+            'text.fallback^2',
+            'text.ngram^1',
+            'text.ngram._2gram^1',
+            'text.ngram._3gram^1',
+        ];
+
         if ($matchPhrase === true) {
-            $mustSearchBlock = Query::matchPhrasePrefix()
-                ->maxExpansions(50)
-                ->slop(5);
+            $mustSearchBlock = Query::multiMatch()
+                ->type('bool_prefix')
+                ->fields($searchFields);
         } else {
-            $mustSearchBlock = Query::match();
+            $mustSearchBlock = Query::multiMatch()
+                ->type('best_fields')
+                ->fields($searchFields);
         }
 
-        $mustSearchBlock->field('text')
-            ->query($query);
+        $mustSearchBlock->query($query)
+            ->minimumShouldMatch('70%');
 
         $searchQuery = Query::bool()
             ->must($mustSearchBlock);
