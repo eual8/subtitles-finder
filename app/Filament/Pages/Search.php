@@ -2,11 +2,11 @@
 
 namespace App\Filament\Pages;
 
+use App\Data\FragmentSearchResult;
 use App\Models\Playlist;
 use App\Models\Video;
 use App\Services\FragmentSearchService;
 use App\Services\VideoService;
-use Elastic\ScoutDriverPlus\Paginator;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -141,14 +141,15 @@ class Search extends Page
         $this->videoService = $videoService;
     }
 
-    protected function searchFragments(): Paginator
+    protected function searchFragments(): FragmentSearchResult
     {
         return $this->searchService->search(
             query: $this->searchQuery,
             playlistId: $this->playlistId,
             videoId: $this->videoId,
             page: $this->page,
-            matchPhrase: $this->matchPhrase
+            matchPhrase: $this->matchPhrase,
+            withPreparedHighlights: true
         );
     }
 
@@ -168,8 +169,11 @@ class Search extends Page
 
     protected function getViewData(): array
     {
+        $searchResult = $this->searchFragments();
+
         return [
-            'fragments' => $this->searchFragments(),
+            'fragments' => $searchResult->paginator,
+            'results' => $searchResult->preparedHits,
             'videos' => $this->playlistId !== null ? $this->getVideos() : collect(),
             'playlists' => Playlist::orderBy('title')->get()->pluck('title', 'id'),
         ];

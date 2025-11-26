@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Data\FragmentSearchResult;
 use App\Models\Fragment;
+use App\Transformers\FragmentHighlightTransformer;
 use Elastic\ScoutDriverPlus\Builders\BoolQueryBuilder;
 use Elastic\ScoutDriverPlus\Paginator;
 use Elastic\ScoutDriverPlus\Support\Query;
@@ -20,13 +22,32 @@ final class FragmentSearchService
         'post_tags' => ['</b></mark>'],
         // allow highlighting across multi_match fields
         'require_field_match' => false,
+        // render only one compact fragment; if nothing matches – return a small excerpt
+        'fragment_size' => 220,
+        'number_of_fragments' => 1,
+        'no_match_size' => 220,
+        'type' => 'unified',
+        // highlight text using matches from all sub‑fields
+        'matched_fields' => ['text', 'text.fallback', 'text.ngram'],
     ];
 
-    public function search(string $query, ?int $playlistId, ?int $videoId, int $page, int $perPage = 20, bool $matchPhrase = false): Paginator
+    public function __construct(
+        private readonly FragmentHighlightTransformer $highlightTransformer,
+    ) {}
+
+    public function search(string $query, ?int $playlistId, ?int $videoId, int $page, int $perPage = 20, bool $matchPhrase = false, bool $withPreparedHighlights = false): Paginator|FragmentSearchResult
     {
         $searchQuery = $this->buildBaseQuery($query, $playlistId, $videoId, $matchPhrase);
 
-        return $this->runSearch($searchQuery, $perPage, $page, true);
+        $paginator = $this->runSearch($searchQuery, $perPage, $page, true);
+
+        if (! $withPreparedHighlights) {
+            return $paginator;
+        }
+
+        $preparedHits = $this->highlightTransformer->transform($paginator, $query);
+
+        return new FragmentSearchResult($paginator, $preparedHits);
     }
 
     /**
