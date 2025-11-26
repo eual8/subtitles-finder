@@ -8,24 +8,24 @@ use Elastic\ScoutDriverPlus\Support\Query;
 
 final class FragmentSearchService
 {
+    private const array SEARCH_FIELDS = [
+        'text^3',
+        'text.fallback^2',
+        'text.ngram^1',
+    ];
+
     public function search(string $query, ?int $playlistId, ?int $videoId, int $page, int $perPage = 20, bool $matchPhrase = false): Paginator
     {
-        $searchFields = [
-            'text^3',
-            'text.fallback^2',
-            'text.ngram^1',
-        ];
-
         if ($matchPhrase === true) {
             // bool_prefix работает с search_as_you_type и поддерживает «набор по буквам» для последнего токена
             $mustSearchBlock = Query::multiMatch()
                 ->type('bool_prefix')
-                ->fields($searchFields);
+                ->fields(self::SEARCH_FIELDS);
         } else {
             // обычный match по нескольким полям
             $mustSearchBlock = Query::multiMatch()
                 ->type('best_fields')
-                ->fields($searchFields);
+                ->fields(self::SEARCH_FIELDS);
         }
 
         $mustSearchBlock->query($query);
@@ -70,45 +70,40 @@ final class FragmentSearchService
      */
     public function searchForExport(string $query, ?int $playlistId = null, ?int $videoId = null, bool $matchPhrase = false, int $limit = 1000): Paginator
     {
-        $searchFields = [
-            'text^3',
-            'text.fallback^2',
-            'text.ngram^1',
-            'text.ngram._2gram^1',
-            'text.ngram._3gram^1',
-        ];
-
         if ($matchPhrase === true) {
+            // bool_prefix работает с search_as_you_type и поддерживает «набор по буквам» для последнего токена
             $mustSearchBlock = Query::multiMatch()
                 ->type('bool_prefix')
-                ->fields($searchFields);
+                ->fields(self::SEARCH_FIELDS);
         } else {
+            // обычный match по нескольким полям
             $mustSearchBlock = Query::multiMatch()
                 ->type('best_fields')
-                ->fields($searchFields);
+                ->fields(self::SEARCH_FIELDS);
         }
 
-        $mustSearchBlock->query($query)
-            ->minimumShouldMatch('70%');
-
-        $searchQuery = Query::bool()
-            ->must($mustSearchBlock);
+        $mustSearchBlock->query($query);
+        $searchQuery = Query::bool()->must($mustSearchBlock);
 
         if ($playlistId !== null) {
-            $searchQuery->must(Query::term()
-                ->field('playlist_id')
-                ->value($playlistId));
+            $searchQuery->must(
+                Query::term()
+                    ->field('playlist_id')
+                    ->value($playlistId)
+            );
         }
 
         if ($videoId !== null) {
-            $searchQuery->must(Query::term()
-                ->field('video_id')
-                ->value($videoId));
+            $searchQuery->must(
+                Query::term()
+                    ->field('video_id')
+                    ->value($videoId)
+            );
         }
 
         // Используем такой же запрос как в search, но с большим лимитом и без пагинации
         return Fragment::searchQuery($searchQuery)
             ->load(['video'])
-            ->paginate($limit, 'page');
+            ->paginate($limit, 'page', 1);
     }
 }
