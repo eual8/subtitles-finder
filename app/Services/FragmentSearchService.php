@@ -8,9 +8,9 @@ use Elastic\ScoutDriverPlus\Support\Query;
 
 final class FragmentSearchService
 {
-    public function search(string $query, ?int $playlistId, ?int $videoId, int $page, int $perPage = 20, bool $matchPharase = false): Paginator
+    public function search(string $query, ?int $playlistId, ?int $videoId, int $page, int $perPage = 20, bool $matchPhrase = false): Paginator
     {
-        if ($matchPharase === true) {
+        if ($matchPhrase === true) {
             $mustSearchBlock = Query::matchPhrasePrefix()
                 ->maxExpansions(50)
                 ->slop(5);
@@ -47,9 +47,9 @@ final class FragmentSearchService
     /**
      * Поиск фрагментов для экспорта (без пагинации)
      */
-    public function searchForExport(string $query, ?int $playlistId = null, ?int $videoId = null, bool $matchPharase = false, int $limit = 1000): Paginator
+    public function searchForExport(string $query, ?int $playlistId = null, ?int $videoId = null, bool $matchPhrase = false, int $limit = 1000): Paginator
     {
-        if ($matchPharase === true) {
+        if ($matchPhrase === true) {
             $mustSearchBlock = Query::matchPhrasePrefix()
                 ->maxExpansions(50)
                 ->slop(5);

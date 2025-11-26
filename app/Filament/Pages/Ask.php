@@ -69,7 +69,7 @@ class Ask extends Page
             playlistId: $this->playlistId,
             videoId: $this->videoId,
             page: $this->page,
-            matchPharase: $this->matchPhrase
+            matchPhrase: $this->matchPhrase
         );
     }
 

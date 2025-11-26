@@ -148,7 +148,7 @@ class Search extends Page
             playlistId: $this->playlistId,
             videoId: $this->videoId,
             page: $this->page,
-            matchPharase: $this->matchPhrase
+            matchPhrase: $this->matchPhrase
         );
     }
 
@@ -204,7 +204,7 @@ class Search extends Page
             query: $this->searchQuery,
             playlistId: $this->playlistId,
             videoId: $this->videoId,
-            matchPharase: $this->matchPhrase
+            matchPhrase: $this->matchPhrase
         );
 
         // Санитизируем имя файла
