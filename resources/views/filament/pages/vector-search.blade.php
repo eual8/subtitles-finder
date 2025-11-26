@@ -24,6 +24,11 @@
 
                         <div class="block flex-1">
                             <span class="text-gray-900 dark:text-gray-100">{{ $hit->model()?->text }}</span>
+                            <div class="mt-1">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">
+                                    Релевантность: {{ number_format($hit->distance(), 4) }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </a>
