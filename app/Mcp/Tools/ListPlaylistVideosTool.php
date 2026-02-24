@@ -2,7 +2,6 @@
 
 namespace App\Mcp\Tools;
 
-use App\Mcp\Tools\Concerns\EnsuresSearchAccess;
 use App\Services\VideoService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -20,18 +19,12 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 #[IsIdempotent]
 class ListPlaylistVideosTool extends Tool
 {
-    use EnsuresSearchAccess;
-
     public function __construct(
         private readonly VideoService $videoService,
     ) {}
 
     public function handle(Request $request): Response|ResponseFactory
     {
-        if ($denied = $this->denyUnlessCanSearch($request)) {
-            return $denied;
-        }
-
         $validated = $request->validate([
             'playlistId' => ['required', 'integer', 'min:1'],
         ]);

@@ -2,7 +2,6 @@
 
 namespace App\Mcp\Tools;
 
-use App\Mcp\Tools\Concerns\EnsuresSearchAccess;
 use App\Models\Fragment;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -20,16 +19,10 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 #[IsIdempotent]
 class ReadFragmentWindowTool extends Tool
 {
-    use EnsuresSearchAccess;
-
     private const PER_PAGE = 20;
 
     public function handle(Request $request): Response|ResponseFactory
     {
-        if ($denied = $this->denyUnlessCanSearch($request)) {
-            return $denied;
-        }
-
         $validated = $request->validate([
             'fragmentId' => ['required', 'integer', 'min:1'],
         ]);

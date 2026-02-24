@@ -3,7 +3,6 @@
 namespace App\Mcp\Tools;
 
 use App\Data\FragmentSearchResult;
-use App\Mcp\Tools\Concerns\EnsuresSearchAccess;
 use App\Models\Fragment;
 use App\Services\FragmentSearchService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -23,8 +22,6 @@ use Throwable;
 #[IsIdempotent]
 class SearchFragmentsTool extends Tool
 {
-    use EnsuresSearchAccess;
-
     private const PER_PAGE = 20;
 
     public function __construct(
@@ -33,10 +30,6 @@ class SearchFragmentsTool extends Tool
 
     public function handle(Request $request): Response|ResponseFactory
     {
-        if ($denied = $this->denyUnlessCanSearch($request)) {
-            return $denied;
-        }
-
         $validated = $request->validate([
             'query' => ['required', 'string', 'min:1'],
             'playlistId' => ['nullable', 'integer', 'min:1'],
