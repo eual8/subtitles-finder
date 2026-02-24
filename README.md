@@ -1,6 +1,12 @@
 
 ### Полезные команды
 
+
+```
+composer update --ignore-platform-reqs
+
+```
+
 #### Если не идёт скачивание с ютуба, то возмножно надо обновить программу:
 ```
 pip install --upgrade yt-dlp

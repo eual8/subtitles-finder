@@ -57,13 +57,13 @@ final class YoutubeService
     public function getSubtitles(string $youtubeId, string $langCode = 'ru'): ?string
     {
         $filePath = Storage::disk('public')->path('');
+        $subtitlePath = $filePath.$youtubeId.'.'.$langCode.'.vtt';
 
         $options = [
             'yt-dlp',
             '--write-sub',
             '--sub-lang',
             $langCode,
-            '--no-write-auto-subs',
             '--skip-download',
             '--no-overwrites',
             '--output',
@@ -81,11 +81,37 @@ final class YoutubeService
             return null;
         }
 
-        if (str_contains($process->getOutput(), 'There are no subtitles')) {
+        if (file_exists($subtitlePath)) {
+            return file_get_contents($subtitlePath);
+        }
+
+        $autoOptions = [
+            'yt-dlp',
+            '--write-auto-sub',
+            '--sub-lang',
+            $langCode,
+            '--skip-download',
+            '--no-overwrites',
+            '--output',
+            $filePath.'%(id)s.%(ext)s',
+            $youtubeId,
+        ];
+
+        $autoProcess = new Process($autoOptions);
+        $autoProcess->setTimeout(60 * 2); // 2 minutes
+        $autoProcess->run();
+
+        if (! $autoProcess->isSuccessful()) {
+            \Log::info('Yt-dlp - auto subtitles download', [$autoProcess->getErrorOutput()]);
+
             return null;
         }
 
-        return file_get_contents($filePath.$youtubeId.'.'.$langCode.'.vtt');
+        if (! file_exists($subtitlePath)) {
+            return null;
+        }
+
+        return file_get_contents($subtitlePath);
     }
 
     public function downloadAudio(string $youtubeId, string $format = 'wav'): string
