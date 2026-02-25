@@ -17,7 +17,7 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 use Throwable;
 
 #[Name('search_fragments')]
-#[Description('Searches fragment snippets with optional playlist/video filters and returns read links to full context.')]
+#[Description('Searches fragment snippets across all playlists/videos and returns read links to full context.')]
 #[IsReadOnly]
 #[IsIdempotent]
 class SearchFragmentsTool extends Tool
@@ -32,23 +32,17 @@ class SearchFragmentsTool extends Tool
     {
         $validated = $request->validate([
             'query' => ['required', 'string', 'min:1'],
-            'playlistId' => ['nullable', 'integer', 'min:1'],
-            'videoId' => ['nullable', 'integer', 'min:1'],
             'page' => ['nullable', 'integer', 'min:1'],
             'matchPhrase' => ['nullable', 'boolean'],
         ]);
 
         $query = trim((string) $validated['query']);
-        $playlistId = isset($validated['playlistId']) ? (int) $validated['playlistId'] : null;
-        $videoId = isset($validated['videoId']) ? (int) $validated['videoId'] : null;
         $page = isset($validated['page']) ? (int) $validated['page'] : 1;
         $matchPhrase = (bool) ($validated['matchPhrase'] ?? false);
 
         /** @var FragmentSearchResult $searchResult */
         $searchResult = $this->searchService->search(
             query: $query,
-            playlistId: $playlistId,
-            videoId: $videoId,
             page: $page,
             perPage: self::PER_PAGE,
             matchPhrase: $matchPhrase,
@@ -91,11 +85,7 @@ class SearchFragmentsTool extends Tool
 
         return Response::structured([
             'query' => $query,
-            'filters' => [
-                'playlistId' => $playlistId,
-                'videoId' => $videoId,
-                'matchPhrase' => $matchPhrase,
-            ],
+            'matchPhrase' => $matchPhrase,
             'pagination' => [
                 'page' => (int) $paginator->currentPage(),
                 'perPage' => (int) $paginator->perPage(),
@@ -115,14 +105,6 @@ class SearchFragmentsTool extends Tool
                 ->required()
                 ->min(1)
                 ->description('Search phrase (same as searchQuery on /admin/search).'),
-            'playlistId' => $schema->integer()
-                ->nullable()
-                ->min(1)
-                ->description('Optional playlist filter ID.'),
-            'videoId' => $schema->integer()
-                ->nullable()
-                ->min(1)
-                ->description('Optional video filter ID. Works with selected playlist.'),
             'page' => $schema->integer()
                 ->nullable()
                 ->min(1)
@@ -137,11 +119,7 @@ class SearchFragmentsTool extends Tool
     {
         return [
             'query' => $schema->string()->required(),
-            'filters' => $schema->object([
-                'playlistId' => $schema->integer()->nullable(),
-                'videoId' => $schema->integer()->nullable(),
-                'matchPhrase' => $schema->boolean()->required(),
-            ])->required(),
+            'matchPhrase' => $schema->boolean()->required(),
             'pagination' => $schema->object([
                 'page' => $schema->integer()->required(),
                 'perPage' => $schema->integer()->required(),

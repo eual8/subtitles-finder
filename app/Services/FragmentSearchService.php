@@ -35,7 +35,7 @@ final class FragmentSearchService
         private readonly FragmentHighlightTransformer $highlightTransformer,
     ) {}
 
-    public function search(string $query, ?int $playlistId, ?int $videoId, int $page, int $perPage = 20, bool $matchPhrase = false, bool $withPreparedHighlights = false): Paginator|FragmentSearchResult
+    public function search(string $query, ?int $playlistId = null, ?int $videoId = null, int $page = 1, int $perPage = 20, bool $matchPhrase = false, bool $withPreparedHighlights = false): Paginator|FragmentSearchResult
     {
         $searchQuery = $this->buildBaseQuery($query, $playlistId, $videoId, $matchPhrase);
 

@@ -29,11 +29,9 @@ php artisan elastic:migrate:refresh
 Сервер MCP: `POST /mcp/search`
 
 Рекомендуемый порядок вызовов для модели:
-1. `list_playlists` — получить доступные плейлисты.
-2. `list_playlist_videos` — получить видео выбранного плейлиста.
-3. `search_fragments` — выполнить поиск с фильтрами (`query`, `playlistId`, `videoId`, `matchPhrase`, `page`).
-4. `read_fragment_window` — читать контекст выбранного `fragmentId`.
-5. Для перехода по контексту использовать `navigation.nextId` / `navigation.prevId`.
+1. `search_fragments` — выполнить поиск по всем плейлистам/видео (`query`, `matchPhrase`, `page`).
+2. `read_fragment_window` — читать контекст выбранного `fragmentId`.
+3. Для перехода по контексту использовать `navigation.nextId` / `navigation.prevId`.
 
 MCP prompts для модели:
 1. `search_workflow` — базовый workflow поиска и чтения контекста.
