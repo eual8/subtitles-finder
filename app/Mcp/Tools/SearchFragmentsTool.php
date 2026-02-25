@@ -22,7 +22,7 @@ use Throwable;
 #[IsIdempotent]
 class SearchFragmentsTool extends Tool
 {
-    private const PER_PAGE = 20;
+    private const int PER_PAGE = 100;
 
     public function __construct(
         private readonly FragmentSearchService $searchService,
